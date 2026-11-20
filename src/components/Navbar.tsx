@@ -33,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewContract }) => {
   const dueInstallmentsCount = financialStats.upcomingInstallments.filter(i => i.isDueSoon).length;
 
   interface NavItem {
-    id: 'dashboard' | 'contracts' | 'fleet' | 'sheet' | 'crm' | 'bookings' | 'calculator';
+    id: 'dashboard' | 'contracts' | 'fleet' | 'sheet' | 'crm' | 'bookings' | 'calculator' | 'settings';
     label: string;
     icon: React.ComponentType<{ className?: string }>;
     badge?: string | null;
@@ -85,8 +85,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewContract }) => {
       id: 'calculator',
       label: 'حاسبة الكيلومتر والرسوم',
       icon: Calculator,
-      badge: '120 كم/يوم',
+      badge: `${company.dailyKmAllowance} كم/يوم`,
       badgeColor: 'bg-slate-700 text-slate-300',
+    },
+    {
+      id: 'settings',
+      label: 'إعدادات الشركة والعقد القانوني',
+      icon: ShieldCheck,
+      badge: null,
     }
   ];
 
@@ -98,14 +104,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewContract }) => {
           <div className="flex items-center gap-4 flex-wrap">
             <span className="flex items-center gap-1.5 text-amber-400 font-semibold">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>ماستر كي (K R M) لتأجير وتوريد السيارات</span>
+              <span>{company.name}</span>
             </span>
             <span className="hidden sm:inline-block text-slate-600">|</span>
             <span className="hidden md:inline">س.ت : {company.commercialRecord}</span>
             <span className="hidden sm:inline-block text-slate-600">|</span>
             <span className="hidden md:inline">ب.ض: {company.taxCard}</span>
             <span className="hidden sm:inline-block text-slate-600">|</span>
-            <span className="text-slate-300">محكمة الجيزة المختصة</span>
+            <span className="text-slate-300">{company.courtJurisdiction}</span>
           </div>
 
           <div className="flex items-center gap-4 flex-wrap text-xs">

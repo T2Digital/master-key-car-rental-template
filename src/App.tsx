@@ -26,7 +26,7 @@ import { CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { printElementCleanly } from './utils/pdfExport';
 
 const MainContent: React.FC = () => {
-  const { activeTab, setActiveTab, toast, showToast, generateInvoiceForContract, contracts, invoices } = useApp();
+  const { activeTab, setActiveTab, toast, showToast, generateInvoiceForContract, contracts, invoices, company, updateCompanyInfo } = useApp();
 
   // Modal states
   const [isNewContractOpen, setIsNewContractOpen] = useState(false);
@@ -164,6 +164,66 @@ const MainContent: React.FC = () => {
         {activeTab === 'bookings' && <SmartBookingPortal />}
 
         {activeTab === 'calculator' && <RentalCalculator />}
+
+        {activeTab === 'settings' && (
+          <div className="max-w-4xl mx-auto bg-slate-900 border border-amber-500/20 rounded-2xl p-6 space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-amber-400">إعدادات الشركة وبنود العقد القانوني الرسمي</h2>
+              <p className="text-sm text-slate-400 mt-1">أي تعديل هنا ينعكس فوراً في عقود الإيجار المطبوعة والفواتير والشريط العلوي ويُحفظ سحابياً.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">اسم الشركة / المعرض</label>
+                <input type="text" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white" value={company.name} onChange={e => updateCompanyInfo({ name: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">اسم الممثل القانوني (الطرف الأول بالعقد)</label>
+                <input type="text" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white" value={company.representativeName} onChange={e => updateCompanyInfo({ representativeName: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">صفة الممثل القانوني</label>
+                <input type="text" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white" value={company.representativeTitle} onChange={e => updateCompanyInfo({ representativeTitle: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">الرقم القومي للممثل القانوني</label>
+                <input type="text" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono" value={company.representativeNationalId} onChange={e => updateCompanyInfo({ representativeNationalId: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">رقم السجل التجاري (س.ت)</label>
+                <input type="text" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono" value={company.commercialRecord} onChange={e => updateCompanyInfo({ commercialRecord: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">رقم البطاقة الضريبية (ب.ض)</label>
+                <input type="text" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono" value={company.taxCard} onChange={e => updateCompanyInfo({ taxCard: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">المحكمة المختصة بالنزاعات</label>
+                <input type="text" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white" value={company.courtJurisdiction} onChange={e => updateCompanyInfo({ courtJurisdiction: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">الكيلومترات المسموحة يومياً</label>
+                <input type="number" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono" value={company.dailyKmAllowance} onChange={e => updateCompanyInfo({ dailyKmAllowance: Number(e.target.value) || 120 })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">هاتف الشركة الأساسي</label>
+                <input type="text" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono" value={company.phone} onChange={e => updateCompanyInfo({ phone: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-1">هاتف المكتب</label>
+                <input type="text" className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono" value={company.officePhone} onChange={e => updateCompanyInfo({ officePhone: e.target.value })} />
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                updateCompanyInfo({});
+                showToast('تم حفظ وتزامن البيانات القانونية للعقود والفواتير بنجاح ✅', 'success');
+              }}
+              className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition"
+            >
+              حفظ الإعدادات القانونية
+            </button>
+          </div>
+        )}
       </main>
 
       {/* Contract Printable Viewer Modal (Full Screen with direct Print) */}

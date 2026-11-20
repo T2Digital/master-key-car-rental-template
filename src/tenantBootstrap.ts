@@ -8,6 +8,7 @@ export interface UniversalTenantConfig {
   accentColor?: string;
   phone?: string;
   whatsapp?: string;
+  email?: string;
   businessType?: string;
   commercialRegister?: string;
   taxCardNumber?: string;
@@ -16,6 +17,14 @@ export interface UniversalTenantConfig {
   studioLandingPageUrl?: string;
   planNameAr?: string;
   upgradeUrl?: string;
+}
+
+export function resolveCarRentalBrandSlug(): string | null {
+  if (typeof window === 'undefined') return null;
+  const b = (window as any).__TENANT_BRAND__ as UniversalTenantConfig | undefined;
+  const slug = String(b?.slug || b?.id || '').trim().toLowerCase();
+  if (!slug || slug === 'master-key-car-rental' || slug === 'master_key_car_rental') return null;
+  return slug;
 }
 
 const DEFAULT_TOKENS = ['ماستر كي لتأجير السيارات', 'ماستر كي', 'Master Key KRM', 'Master Key'];

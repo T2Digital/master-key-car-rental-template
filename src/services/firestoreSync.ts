@@ -1,22 +1,34 @@
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  deleteDoc, 
-  getDocs, 
-  onSnapshot, 
-  Unsubscribe 
+import {
+  collection as fsCollection,
+  doc as fsDoc,
+  setDoc,
+  deleteDoc,
+  getDocs,
+  onSnapshot,
+  Unsubscribe
 } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType, testFirestoreConnection } from '../lib/firebase';
-import { 
-  Car, 
-  Customer, 
-  Contract, 
-  SheetRow, 
-  OperationRow, 
-  Invoice, 
-  BookingRequest 
+import { resolveCarRentalBrandSlug } from '../tenantBootstrap';
+import {
+  Car,
+  Customer,
+  Contract,
+  SheetRow,
+  OperationRow,
+  Invoice,
+  BookingRequest,
+  CompanyInfo
 } from '../types';
+
+function collection(database: typeof db, name: string) {
+  const slug = resolveCarRentalBrandSlug();
+  return slug ? fsCollection(database, 'tenants', slug, name) : fsCollection(database, name);
+}
+
+function doc(database: typeof db, name: string, id: string) {
+  const slug = resolveCarRentalBrandSlug();
+  return slug ? fsDoc(database, 'tenants', slug, name, id) : fsDoc(database, name, id);
+}
 
 // Helper to remove undefined fields because Firestore rejects undefined values
 function sanitizeForFirestore<T>(data: T): Record<string, any> {
@@ -192,6 +204,27 @@ export const firestoreSync = {
       (error) => {
         handleFirestoreError(error, OperationType.GET, collectionName);
       }
+    );
+  },
+
+  // Save / Subscribe Company Legal Info
+  saveCompanyInfo: async (company: CompanyInfo) => {
+    try {
+      await setDoc(doc(db, 'company_settings', 'main'), sanitizeForFirestore(company));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'company_settings/main');
+    }
+  },
+
+  subscribeCompanyInfo: (onData: (company: CompanyInfo) => void): Unsubscribe => {
+    return onSnapshot(
+      doc(db, 'company_settings', 'main'),
+      (snap) => {
+        if (snap.exists()) {
+          onData(snap.data() as CompanyInfo);
+        }
+      },
+      (err) => console.warn('Company settings snapshot warning:', err)
     );
   },
 

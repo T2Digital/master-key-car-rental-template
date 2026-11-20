@@ -26,6 +26,7 @@ import { firestoreSync } from '../services/firestoreSync';
 interface AppContextType {
   cloudStatus: 'connected' | 'connecting' | 'offline';
   company: CompanyInfo;
+  updateCompanyInfo: (updates: Partial<CompanyInfo>) => void;
   cars: Car[];
   customers: Customer[];
   contracts: Contract[];
@@ -35,8 +36,8 @@ interface AppContextType {
   bookings: BookingRequest[];
   
   // Navigation / View mode
-  activeTab: 'dashboard' | 'contracts' | 'fleet' | 'crm' | 'sheet' | 'bookings' | 'calculator';
-  setActiveTab: (tab: 'dashboard' | 'contracts' | 'fleet' | 'crm' | 'sheet' | 'bookings' | 'calculator') => void;
+  activeTab: 'dashboard' | 'contracts' | 'fleet' | 'crm' | 'sheet' | 'bookings' | 'calculator' | 'settings';
+  setActiveTab: (tab: 'dashboard' | 'contracts' | 'fleet' | 'crm' | 'sheet' | 'bookings' | 'calculator' | 'settings') => void;
   
   // Active selected items for modals / drawers
   selectedContract: Contract | null;
@@ -189,12 +190,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? JSON.parse(saved) : initialInvoices;
   });
 
+  const [company, setCompany] = useState<CompanyInfo>(() => {
+    try {
+      const saved = localStorage.getItem('mk_company_info_v8');
+      if (saved) return { ...companyInfo, ...JSON.parse(saved) };
+    } catch {}
+    const b = (typeof window !== 'undefined' && (window as any).__TENANT_BRAND__) || null;
+    return {
+      ...companyInfo,
+      ...(b?.name ? { name: b.name } : {}),
+      ...(b?.phone ? { phone: b.phone } : {}),
+      ...(b?.commercialRegister ? { commercialRecord: b.commercialRegister } : {}),
+      ...(b?.taxCardNumber ? { taxCard: b.taxCardNumber } : {}),
+    };
+  });
+
+  const updateCompanyInfo = (updates: Partial<CompanyInfo>) => {
+    setCompany(prev => {
+      const next = { ...prev, ...updates };
+      try { localStorage.setItem('mk_company_info_v8', JSON.stringify(next)); } catch {}
+      firestoreSync.saveCompanyInfo(next).catch(() => {});
+      return next;
+    });
+  };
+
   const [bookings, setBookings] = useState<BookingRequest[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
     return saved ? JSON.parse(saved) : initialBookings;
   });
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'contracts' | 'fleet' | 'crm' | 'sheet' | 'bookings' | 'calculator'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'contracts' | 'fleet' | 'crm' | 'sheet' | 'bookings' | 'calculator' | 'settings'>('dashboard');
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -280,6 +305,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           }
         });
         unsubs.push(unsubBookings);
+
+        const unsubCompany = firestoreSync.subscribeCompanyInfo((cloudCompany) => {
+          if (cloudCompany && cloudCompany.name) {
+            setCompany(prev => {
+              const merged = { ...prev, ...cloudCompany };
+              try { localStorage.setItem('mk_company_info_v8', JSON.stringify(merged)); } catch {}
+              return merged;
+            });
+          }
+        });
+        unsubs.push(unsubCompany);
       } catch (err) {
         console.warn('Firebase sync listener warning:', err);
         if (isMounted) setCloudStatus('offline');
@@ -1176,7 +1212,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     <AppContext.Provider
       value={{
         cloudStatus,
-        company: companyInfo,
+        company,
+        updateCompanyInfo,
         cars,
         customers,
         contracts,
