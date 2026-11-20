@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Connectivity Test
+    match /test/{testId} {
+      allow read, write: if true;
+    }
+
+    // Cars Collection (Fleet)
+    match /cars/{carId} {
+      allow read: if true;
+      allow create, update: if isValidId(carId) && 
+        incoming().brand is string && incoming().brand.size() <= 100 &&
+        incoming().plateNumber is string && incoming().plateNumber.size() <= 50;
+      allow delete: if isValidId(carId);
+    }
+
+    // Customers Collection (CRM)
+    match /customers/{customerId} {
+      allow read: if true;
+      allow create, update: if isValidId(customerId) &&
+        incoming().fullName is string && incoming().fullName.size() <= 150 &&
+        incoming().phone is string && incoming().phone.size() <= 30;
+      allow delete: if isValidId(customerId);
+    }
+
+    // Contracts Collection
+    match /contracts/{contractId} {
+      allow read: if true;
+      allow create, update: if isValidId(contractId) &&
+        incoming().contractNumber is string && incoming().contractNumber.size() <= 60 &&
+        incoming().startDate is string && incoming().startDate.size() <= 40;
+      allow delete: if isValidId(contractId);
+    }
+
+    // Invoices Collection
+    match /invoices/{invoiceId} {
+      allow read: if true;
+      allow create, update: if isValidId(invoiceId) &&
+        incoming().invoiceNumber is string && incoming().invoiceNumber.size() <= 60;
+      allow delete: if isValidId(invoiceId);
+    }
+
+    // Sheet Rows Collection (حسابات خاصة)
+    match /sheet_rows/{rowId} {
+      allow read: if true;
+      allow create, update: if isValidId(rowId);
+      allow delete: if isValidId(rowId);
+    }
+
+    // Operation Rows Collection (تشغيل عام)
+    match /operation_rows/{rowId} {
+      allow read: if true;
+      allow create, update: if isValidId(rowId);
+      allow delete: if isValidId(rowId);
+    }
+
+    // Booking Requests Collection (حجوزات واستفسارات البوابة الذكية)
+    match /bookings/{bookingId} {
+      allow read: if true;
+      allow create: if isValidId(bookingId) &&
+        incoming().customerName is string && incoming().customerName.size() <= 150 &&
+        incoming().phone is string && incoming().phone.size() <= 30;
+      allow update, delete: if isValidId(bookingId);
+    }
+  }
+}

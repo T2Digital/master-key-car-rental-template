@@ -1,0 +1,194 @@
+{
+  "entities": {
+    "Car": {
+      "title": "Car",
+      "description": "Vehicle asset in the rental fleet",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "brand": { "type": "string", "maxLength": 100 },
+        "modelYear": { "type": "string", "maxLength": 10 },
+        "color": { "type": "string", "maxLength": 50 },
+        "plateNumber": { "type": "string", "maxLength": 50 },
+        "trafficUnit": { "type": "string", "maxLength": 100 },
+        "chassisNumber": { "type": "string", "maxLength": 100 },
+        "motorNumber": { "type": "string", "maxLength": 100 },
+        "ownerName": { "type": "string", "maxLength": 150 },
+        "status": { "type": "string", "enum": ["available", "rented", "maintenance", "reserved"] },
+        "currentMileage": { "type": "number" },
+        "allowedDailyKm": { "type": "number" },
+        "excessKmRate": { "type": "number" },
+        "dailyRate": { "type": "number" },
+        "monthlyRate": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 }
+      },
+      "required": ["id", "brand", "modelYear", "plateNumber", "ownerName", "status", "currentMileage"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Client profile in Master Key CRM",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "fullName": { "type": "string", "maxLength": 150 },
+        "nationalId": { "type": "string", "maxLength": 50 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "address": { "type": "string", "maxLength": 250 },
+        "nationality": { "type": "string", "maxLength": 50 },
+        "drivingLicenseNumber": { "type": "string", "maxLength": 50 },
+        "licenseExpiryDate": { "type": "string", "maxLength": 30 },
+        "totalRentalsCount": { "type": "number" },
+        "totalSpent": { "type": "number" },
+        "isBlacklisted": { "type": "boolean" },
+        "notes": { "type": "string", "maxLength": 1000 }
+      },
+      "required": ["id", "fullName", "phone"]
+    },
+    "Contract": {
+      "title": "Contract",
+      "description": "Official rental contract document and status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "contractNumber": { "type": "string", "maxLength": 60 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "carId": { "type": "string", "maxLength": 128 },
+        "startDate": { "type": "string", "maxLength": 40 },
+        "endDate": { "type": "string", "maxLength": 40 },
+        "rentalType": { "type": "string", "enum": ["daily", "weekly", "monthly", "custom"] },
+        "rentalAmount": { "type": "number" },
+        "paidAmount": { "type": "number" },
+        "depositAmount": { "type": "number" },
+        "initialMileage": { "type": "number" },
+        "returnMileage": { "type": "number" },
+        "allowedDailyKm": { "type": "number" },
+        "excessKmRate": { "type": "number" },
+        "fuelOut": { "type": "string", "maxLength": 50 },
+        "fuelIn": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["active", "closed", "overdue", "cancelled"] },
+        "returnDate": { "type": "string", "maxLength": 40 },
+        "notes": { "type": "string", "maxLength": 1000 }
+      },
+      "required": ["id", "contractNumber", "customerId", "carId", "startDate", "endDate", "rentalAmount", "status"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "description": "Financial receipt or invoice record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "invoiceNumber": { "type": "string", "maxLength": 60 },
+        "contractId": { "type": "string", "maxLength": 128 },
+        "customerId": { "type": "string", "maxLength": 128 },
+        "carId": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 40 },
+        "amount": { "type": "number" },
+        "tax": { "type": "number" },
+        "discount": { "type": "number" },
+        "total": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["cash", "instapay", "vodafone_cash", "bank_transfer", "card"] },
+        "type": { "type": "string", "enum": ["receipt", "invoice", "deposit", "refund"] },
+        "notes": { "type": "string", "maxLength": 1000 }
+      },
+      "required": ["id", "invoiceNumber", "date", "amount", "total", "type"]
+    },
+    "SheetRow": {
+      "title": "SheetRow",
+      "description": "Financial ledger record for cars accounts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "index": { "type": "number" },
+        "carName": { "type": "string", "maxLength": 100 },
+        "plateNumber": { "type": "string", "maxLength": 50 },
+        "revenue": { "type": "number" },
+        "maintenance": { "type": "number" },
+        "installment": { "type": "number" },
+        "ownerAmount": { "type": "number" },
+        "otherExpenses": { "type": "number" },
+        "total": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 500 },
+        "month": { "type": "string", "maxLength": 30 }
+      },
+      "required": ["id", "carName", "plateNumber"]
+    },
+    "OperationRow": {
+      "title": "OperationRow",
+      "description": "General fleet operations log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "index": { "type": "number" },
+        "carName": { "type": "string", "maxLength": 100 },
+        "plateNumber": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "maxLength": 50 },
+        "currentDriver": { "type": "string", "maxLength": 150 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "startDate": { "type": "string", "maxLength": 40 },
+        "endDate": { "type": "string", "maxLength": 40 },
+        "notes": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["id", "carName", "plateNumber"]
+    },
+    "BookingRequest": {
+      "title": "BookingRequest",
+      "description": "Customer booking inquiry or reservation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 150 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "carId": { "type": "string", "maxLength": 128 },
+        "carName": { "type": "string", "maxLength": 100 },
+        "startDate": { "type": "string", "maxLength": 40 },
+        "daysCount": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "converted", "cancelled"] }
+      },
+      "required": ["id", "customerName", "phone", "status"]
+    },
+    "ConnectionTest": {
+      "title": "ConnectionTest",
+      "description": "Heartbeat diagnostic document for Firestore health checks",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "maxLength": 20 }
+      }
+    }
+  },
+  "firestore": {
+    "/cars/{carId}": {
+      "schema": "Car",
+      "description": "Fleet vehicles collection"
+    },
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Customer CRM collection"
+    },
+    "/contracts/{contractId}": {
+      "schema": "Contract",
+      "description": "Rental contracts collection"
+    },
+    "/invoices/{invoiceId}": {
+      "schema": "Invoice",
+      "description": "Invoices and cash vouchers collection"
+    },
+    "/sheet_rows/{rowId}": {
+      "schema": "SheetRow",
+      "description": "Special car financial accounts"
+    },
+    "/operation_rows/{rowId}": {
+      "schema": "OperationRow",
+      "description": "General fleet operations log"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "BookingRequest",
+      "description": "Customer reservations and booking inquiries"
+    },
+    "/test/{testId}": {
+      "schema": "ConnectionTest",
+      "description": "Connectivity test documents"
+    }
+  }
+}

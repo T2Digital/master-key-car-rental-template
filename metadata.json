@@ -1,0 +1,6 @@
+{
+  "name": "ماستر كي لتأجير السيارات | Master Key KRM",
+  "description": "نظام متكامل لبراند ماستر كي لتأجير وتوريد السيارات: إدارة الأسطول، نظام الحجوزات الذكي، عقود إيجار رسمية مطابقة، تحديث العدادات، تتبع الصيانة والأقساط، ومزامنة السجل المالي وجوجل شيت.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
